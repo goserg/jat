@@ -4,48 +4,50 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/goserg/jat/pkg/colorify/colorjson"
+	"github.com/goserg/jat/pkg/inputer"
+	"github.com/goserg/jat/pkg/inputer/ifile"
+	"github.com/goserg/jat/pkg/inputer/istdin"
 )
 
 func main() {
 	args := os.Args
-	if len(args) < 2 {
-		fmt.Println("need file name")
-		os.Exit(1)
+
+	var input inputer.Inputer
+	if len(args) >= 2 {
+		input = ifile.New(os.Args[1:])
+	} else {
+		input = istdin.New()
 	}
-	for i, fileName := range os.Args {
-		if i == 0 {
-			continue
-		}
-		file, err := os.Open(fileName)
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-		defer file.Close()
 
-		b, err := ioutil.ReadAll(file)
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+	dataChan := make(chan []byte)
+	input.GetInput(dataChan)
 
+	for data := range dataChan {
+		if err := input.GetError(); err != nil {
+			fatalError(err)
+		}
 		result := bytes.Buffer{}
-		err = json.Indent(&result, b, "", "    ")
+		err := json.Indent(&result, data, "", "    ")
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			fatalError(err)
 		}
 		cj := colorjson.CJ{}
 		colored, err := cj.Colorify(result.Bytes())
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			fatalError(err)
 		}
 
 		os.Stdout.WriteString(string(colored) + "\n")
 	}
+	if err := input.GetError(); err != nil {
+		fatalError(err)
+	}
+}
+
+func fatalError(err error) {
+	fmt.Println(err.Error())
+	os.Exit(1)
 }
