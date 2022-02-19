@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/goserg/jat/pkg/colorify/colorjson"
 )
 
 func main() {
@@ -37,6 +39,13 @@ func main() {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		os.Stdout.WriteString(result.String() + "\n")
+		cj := colorjson.CJ{}
+		colored, err := cj.Colorify(result.Bytes())
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		os.Stdout.WriteString(string(colored) + "\n")
 	}
 }
