@@ -26,9 +26,6 @@ func main() {
 	input.GetInput(dataChan)
 
 	for data := range dataChan {
-		if err := input.GetError(); err != nil {
-			fatalError(err)
-		}
 		result := bytes.Buffer{}
 		err := json.Indent(&result, data, "", "    ")
 		if err != nil {
