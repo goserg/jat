@@ -9,6 +9,7 @@ import (
 	"github.com/goserg/jat/pkg/colorify/colorjson"
 	"github.com/goserg/jat/pkg/inputer"
 	"github.com/goserg/jat/pkg/inputer/ifile"
+	"github.com/goserg/jat/pkg/inputer/ipipe"
 	"github.com/goserg/jat/pkg/inputer/istdin"
 )
 
@@ -19,7 +20,16 @@ func main() {
 	if len(args) >= 2 {
 		input = ifile.New(os.Args[1:])
 	} else {
-		input = istdin.New()
+		info, err := os.Stdin.Stat()
+		if err != nil {
+			fatalError(err)
+		}
+
+		if info.Mode()&os.ModeCharDevice != 0 {
+			input = ipipe.New()
+		} else {
+			input = istdin.New()
+		}
 	}
 
 	dataChan := make(chan []byte)

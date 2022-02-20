@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"log"
 	"os"
 )
 
@@ -19,16 +18,6 @@ func New() *IStdin {
 func (s *IStdin) GetInput(data chan<- []byte) {
 	go func() {
 		defer close(data)
-		info, err := os.Stdin.Stat()
-		if err != nil {
-			s.err = err
-			return
-		}
-
-		if info.Mode()&os.ModeCharDevice != 0 {
-			log.Fatal("The continious reading from stdin is not supported yet; use with pipe or with filename in args")
-		}
-
 		reader := bufio.NewReader(os.Stdin)
 		buf := bytes.Buffer{}
 		for {
