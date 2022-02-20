@@ -9,4 +9,10 @@ Simple cli json viewer with syntax highlighting
     $ go install github.com/goserg/jat@latest
 
 ## Usage
+with args
+ 
     $ jat examples/test1.json
+
+or with pipe
+
+    $ cat examples/test1.json | jat
