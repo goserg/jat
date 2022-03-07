@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/goserg/jat/pkg/colorify/colorjson"
@@ -22,7 +22,7 @@ func main() {
 	} else {
 		info, err := os.Stdin.Stat()
 		if err != nil {
-			fatalError(err)
+			log.Fatal(err.Error())
 		}
 
 		if info.Mode()&os.ModeCharDevice != 0 {
@@ -39,22 +39,17 @@ func main() {
 		result := bytes.Buffer{}
 		err := json.Indent(&result, data, "", "    ")
 		if err != nil {
-			fatalError(err)
+			log.Fatal(err.Error())
 		}
 		cj := colorjson.CJ{}
 		colored, err := cj.Colorify(result.Bytes())
 		if err != nil {
-			fatalError(err)
+			log.Fatal(err.Error())
 		}
 
 		os.Stdout.WriteString(string(colored) + "\n")
 	}
 	if err := input.GetError(); err != nil {
-		fatalError(err)
+		log.Fatal(err.Error())
 	}
-}
-
-func fatalError(err error) {
-	fmt.Println(err.Error())
-	os.Exit(1)
 }
